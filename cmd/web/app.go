@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/alexedwards/scs"
+	"github.com/alexedwards/scs/v2"
 	"poker-planning/pkg/models"
 )
 

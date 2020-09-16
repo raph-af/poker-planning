@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"github.com/alexedwards/scs"
+	"github.com/alexedwards/scs/v2"
 	_ "github.com/lib/pq"
 	"log"
 	"poker-planning/pkg/models"
