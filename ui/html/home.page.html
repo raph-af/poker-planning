@@ -1,0 +1,22 @@
+{{define "page-title"}}Home{{end}}
+{{define "page-body"}}
+    <h2>Latest Stories</h2>
+    {{ if .Stories }}
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Created</th>
+            </tr>
+            {{range .Stories}}
+                <tr>
+                    <td>#{{.ID}}</td>
+                    <td><a href="/story/{{.ID}}">{{.Title}}</a></td>
+                    <td>{{.Created | humanDate}}</td>
+                </tr>
+            {{end}}
+        </table>
+    {{ else }}
+        <p>There's nothing to see here yet!</p>
+    {{end}}
+{{end}}
