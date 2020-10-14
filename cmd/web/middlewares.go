@@ -4,6 +4,7 @@ import (
 	"github.com/justinas/nosurf"
 	"log"
 	"net/http"
+	"golang.org/x/time/rate"
 )
 
 func LogRequest(next http.Handler) http.Handler {
@@ -45,4 +46,16 @@ func NoSurf(next http.HandlerFunc) http.Handler {
 		Secure:   true,
 	})
 	return csrfHandler
+}
+
+var limiter = rate.NewLimiter(1, 2)
+
+func LimitRate(next http.HandlerFunc) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !limiter.Allow() {
+			http.Error(w, http.StatusText(429), http.StatusTooManyRequests)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }

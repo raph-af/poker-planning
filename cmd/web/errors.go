@@ -8,7 +8,7 @@ import (
 
 func (app *App) ServerError(writer http.ResponseWriter, err error) {
 	log.Printf("%s\n%s", err.Error(), debug.Stack())
-	http.Error(writer, "Internal Server Error", http.StatusInternalServerError)
+	http.Error(writer, http.StatusText(500), http.StatusInternalServerError)
 }
 
 func (app *App) ClientError(writer http.ResponseWriter, status int) {

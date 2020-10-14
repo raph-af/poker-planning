@@ -8,4 +8,5 @@ require (
 	github.com/justinas/nosurf v1.1.1
 	github.com/lib/pq v1.8.0
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
+	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e
 )
