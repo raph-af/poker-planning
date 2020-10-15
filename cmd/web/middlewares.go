@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/justinas/nosurf"
+	"golang.org/x/time/rate"
 	"log"
 	"net/http"
-	"golang.org/x/time/rate"
 )
 
 func LogRequest(next http.Handler) http.Handler {
@@ -53,6 +53,18 @@ var limiter = rate.NewLimiter(1, 2)
 func LimitRate(next http.HandlerFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !limiter.Allow() {
+			http.Error(w, http.StatusText(429), http.StatusTooManyRequests)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+var reqsLimiter = &RequestsLimiter{limiters: make(map[string]*rate.Limiter)}
+
+func LimitRateByIp(next http.HandlerFunc) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !reqsLimiter.Allow(r.RemoteAddr) { // TODO: look for IP in "x-forwarded-for" headers first
 			http.Error(w, http.StatusText(429), http.StatusTooManyRequests)
 			return
 		}
