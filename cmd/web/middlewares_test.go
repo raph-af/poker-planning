@@ -3,36 +3,40 @@ package main
 import (
 	"net/http"
 	"net/http/httptest"
+	"sync"
 	"testing"
 )
 
 // these tests are flaky
 
 func TestLimitRate(t *testing.T) {
-	maxCalls := 3
+	totalCalls := 3
 
 	inputHandler := func(w http.ResponseWriter, r *http.Request) {}
 
+	var wg sync.WaitGroup
 	hasStatusTooManyRequests := false
-	i := 0
-	for i < maxCalls {
-		req := httptest.NewRequest(http.MethodGet, "http://test.com", nil)
-		res := httptest.NewRecorder()
-		inputHandler(res, req)
+	for i := 0; i < totalCalls; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			req := httptest.NewRequest(http.MethodGet, "http://test.com", nil)
+			res := httptest.NewRecorder()
+			inputHandler(res, req)
 
-		outputHandler := LimitRate(inputHandler)
-		outputHandler.ServeHTTP(res, req)
+			outputHandler := LimitRate(inputHandler)
+			outputHandler.ServeHTTP(res, req)
 
-		if res.Code == http.StatusTooManyRequests {
-			hasStatusTooManyRequests = true
-		}
-
-		i++
+			if res.Code == http.StatusTooManyRequests {
+				hasStatusTooManyRequests = true
+			}
+		}()
 	}
 
+	wg.Wait()
 	if !hasStatusTooManyRequests {
 		t.Errorf(`Expected at least one response with %v code out of %v successive calls`,
-			http.StatusTooManyRequests, maxCalls)
+			http.StatusTooManyRequests, totalCalls)
 	}
 }
 
